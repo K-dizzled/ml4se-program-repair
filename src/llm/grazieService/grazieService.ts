@@ -3,10 +3,11 @@ import { ChatHistory, ChatMessage } from "../chat";
 
 import { GrazieApi, GrazieChatRole, GrazieFormattedHistory } from "./grazieApi";
 import { GrazieModelParams } from "./grazieModelParams";
+import { GrazieServiceInterface } from "./grazieServiceInterface";
 
 export type CompletionAnswer = string;
 
-export class GrazieService {
+export class GrazieService implements GrazieServiceInterface {
     private readonly api = new GrazieApi(this.eventLogger);
 
     constructor(private readonly eventLogger?: EventLogger) {}

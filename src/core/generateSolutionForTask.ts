@@ -1,6 +1,6 @@
 import { ChatHistory, ChatMessage } from "../llm/chat";
 import { GrazieModelParams } from "../llm/grazieService/grazieModelParams";
-import { GrazieService } from "../llm/grazieService/grazieService";
+import { GrazieServiceInterface } from "../llm/grazieService/grazieServiceInterface";
 import { EventLogger } from "../logging/eventLogger";
 
 export interface ProgramGenerationParams {
@@ -51,7 +51,7 @@ export function defaultProgramGenerationParams(
 
 export async function generateSolutionForTask(
     problemStatement: string,
-    grazieService: GrazieService,
+    grazieService: GrazieServiceInterface,
     programGenerationParams: ProgramGenerationParams,
     eventLogger?: EventLogger
 ): Promise<[string, ChatHistory]> {

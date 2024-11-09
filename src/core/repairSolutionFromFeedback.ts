@@ -1,6 +1,6 @@
 import { ChatHistory, ChatMessage } from "../llm/chat";
 import { GrazieModelParams } from "../llm/grazieService/grazieModelParams";
-import { GrazieService } from "../llm/grazieService/grazieService";
+import { GrazieServiceInterface } from "../llm/grazieService/grazieServiceInterface";
 import { EventLogger } from "../logging/eventLogger";
 
 export interface ProgramRepairParams {
@@ -44,7 +44,7 @@ export function defaultProgramRepairParams(
 // Therefore architecture assumes repairment in one step
 export async function repairSolutionFromFeedback(
     solutionFeedback: string,
-    grazieService: GrazieService,
+    grazieService: GrazieServiceInterface,
     generationHistory: ChatHistory,
     modelForRepairment: string,
     eventLogger?: EventLogger,

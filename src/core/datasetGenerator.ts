@@ -1,6 +1,6 @@
 import { LiveCodeBenchItem } from "../liveCodeBench/liveCodeBenchItem";
-import { GrazieService } from "../llm/grazieService/grazieService";
-import { EventLogger } from "../logging/eventLogger";
+import { GrazieServiceInterface } from "../llm/grazieService/grazieServiceInterface";
+import { EventLogger, Severity } from "../logging/eventLogger";
 import Logger from "../logging/logger";
 import { SolutionValidator } from "../solutionValidator/solutionValidator";
 
@@ -20,21 +20,37 @@ export interface DatasetSample {
 
 export class DatasetGenerator {
     private readonly eventLogger = new EventLogger();
-    private readonly grazieService = new GrazieService();
 
     private readonly executionParams: ExecutionParams = defaultExecutionParams;
     private readonly logger: Logger;
 
     constructor(
+        // TODO: Make it a class that acts like a generator and yields items
+        // for processing
+        private readonly liveCodeBench: LiveCodeBenchItem[],
         private readonly solutionValidator: SolutionValidator,
+        private readonly grazieService: GrazieServiceInterface
     ) {
         this.logger = new Logger(
             this.eventLogger,
             this.executionParams.severity
-        )
+        );
     }
 
-    async processOneSample(
+    // TODO: Refactor to allow partial caching etc.
+    processDataset() {
+        for (const liveBenchItem of this.liveCodeBench) {
+            const result = this.processOneSample(liveBenchItem);
+            this.eventLogger?.log(
+                "sample-processed",
+                "Finished processing sample",
+                result,
+                Severity.LOGIC
+            );
+        }
+    }
+
+    private async processOneSample(
         sample: LiveCodeBenchItem
     ): Promise<DatasetSample | undefined> {
         const programGenerationParams = defaultProgramGenerationParams(
