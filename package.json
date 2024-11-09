@@ -1,7 +1,7 @@
 {
-  "name": "ts-project-template",
-  "displayName": "TS Project Template",
-  "description": "A template for TypeScript projects without frameworks, with linter set, tests via Jest set and strict type checking.",
+  "name": "code-repair",
+  "displayName": "Program Repair",
+  "description": "Utilizing Large Language Models to preair a dataset and use it to train a model to repair code.",
   "repository": {
     "type": "git",
     "url": "https://github.com/K-dizzled/pure-ts-template"
