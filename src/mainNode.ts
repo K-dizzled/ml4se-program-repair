@@ -1,5 +1,9 @@
+// import { DatasetGenerator } from "./core/datasetGenerator";
+// import { MockSolutionValidator } from "./solutionValidator/mockSolutionValidator";
+
 export function main() {
-    console.log("Hello world");
+    // const solutionValidator = new MockSolutionValidator();
+    // const _ = new DatasetGenerator(solutionValidator);
 }
 
 main();
