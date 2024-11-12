@@ -1,4 +1,7 @@
-import { LiveCodeBenchItem } from "../liveCodeBench/liveCodeBenchItem";
+import {
+    LazyDatasetLoader,
+    LiveCodeBenchItem,
+} from "../liveCodeBench/liveCodeBenchItem";
 import { GrazieServiceInterface } from "../llm/grazieService/grazieServiceInterface";
 import { EventLogger, Severity } from "../logging/eventLogger";
 import Logger from "../logging/logger";
@@ -27,7 +30,8 @@ export class DatasetGenerator {
     constructor(
         // TODO: Make it a class that acts like a generator and yields items
         // for processing
-        private readonly liveCodeBench: LiveCodeBenchItem[],
+        // Done?
+        private readonly liveCodeBench: LazyDatasetLoader,
         private readonly solutionValidator: SolutionValidator,
         private readonly grazieService: GrazieServiceInterface
     ) {
@@ -38,8 +42,8 @@ export class DatasetGenerator {
     }
 
     // TODO: Refactor to allow partial caching etc.
-    processDataset() {
-        for (const liveBenchItem of this.liveCodeBench) {
+    async processDataset() {
+        for await (const liveBenchItem of this.liveCodeBench.loadItems()) {
             const result = this.processOneSample(liveBenchItem);
             this.eventLogger?.log(
                 "sample-processed",

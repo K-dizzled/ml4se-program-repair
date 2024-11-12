@@ -1,26 +1,28 @@
 import { DatasetGenerator } from "./core/datasetGenerator";
-import { LiveCodeBenchItem } from "./liveCodeBench/liveCodeBenchItem";
+import { LazyDatasetLoader } from "./liveCodeBench/liveCodeBenchItem";
 import { MockGrazieService } from "./llm/grazieService/mockGrazieService";
 import { MockSolutionValidator } from "./solutionValidator/mockSolutionValidator";
 
 export function main() {
     const solutionValidator = new MockSolutionValidator();
-
-    // TODO: Change to an actual generator
-    const dataset: LiveCodeBenchItem[] = [
-        {
-            problemStatement:
-                "Write a function that adds up two integer arguments.",
-        },
-    ];
+    const liveCodeBenchItemsLoader = new LazyDatasetLoader("test4.jsonl");
 
     const grazieService = new MockGrazieService();
     const datasetGenerator = new DatasetGenerator(
-        dataset,
+        liveCodeBenchItemsLoader,
         solutionValidator,
         grazieService
     );
     datasetGenerator.processDataset();
+
+    // Example of how to use the generator
+    //
+    // (async () => {
+    //     for await (const item of liveCodeBenchItemsLoader.loadItems()) {
+    //         console.log(item.problemTitle);
+    //         console.log(item.privateTestCases);
+    //     }
+    // })();
 }
 
 main();

@@ -1,3 +1,5 @@
+import { Err, Ok, Result } from "ts-results";
+
 import { LiveCodeBenchItem } from "../liveCodeBench/liveCodeBenchItem";
 
 import { SolutionValidator } from "./solutionValidator";
@@ -8,13 +10,13 @@ export class MockSolutionValidator implements SolutionValidator {
     async validateSolution(
         _datasetItem: LiveCodeBenchItem,
         _solution: string
-    ): Promise<[boolean, string | undefined]> {
+    ): Promise<Result<string, string>> {
         if (this.answerSolutionCorrect) {
-            return [true, undefined];
+            return Ok("Good job!");
         }
 
         this.answerSolutionCorrect = !this.answerSolutionCorrect;
 
-        return [false, "Bad job, try again :D"];
+        return Err("Incorrect solution");
     }
 }
