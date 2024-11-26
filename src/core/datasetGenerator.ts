@@ -58,7 +58,7 @@ export class DatasetGenerator {
         sample: LiveCodeBenchItem
     ): Promise<DatasetSample | undefined> {
         const programGenerationParams = defaultProgramGenerationParams(
-            this.executionParams.weakModel
+            this.executionParams.strongModel
         );
         const [potentialSolution, updatedChatHistory] =
             await generateSolutionForTask(
@@ -67,13 +67,12 @@ export class DatasetGenerator {
                 programGenerationParams
             );
 
-        const [solutionVerdict, errorMsg] =
-            await this.solutionValidator.validateSolution(
-                sample,
-                potentialSolution
-            );
+        const validationResults = await this.solutionValidator.validateSolution(
+            sample,
+            potentialSolution
+        );
 
-        if (solutionVerdict) {
+        if (validationResults.ok) {
             this.eventLogger?.log(
                 "solution-correct",
                 `LLM generated correct solution without repairing for statement ${sample.problemStatement}`
@@ -82,15 +81,13 @@ export class DatasetGenerator {
             return undefined;
         }
 
-        if (!errorMsg) {
-            throw new Error("Error message unexpectedly undefined");
-        }
+        const errorMsg = validationResults.val;
 
         const repairedSolution = await repairSolutionFromFeedback(
             errorMsg,
             this.grazieService,
             updatedChatHistory,
-            this.executionParams.strongModel
+            this.executionParams.weakModel
         );
 
         const [repairedSolutionVerdict, _] =

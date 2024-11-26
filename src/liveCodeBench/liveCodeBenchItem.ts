@@ -46,7 +46,6 @@ export class LazyDatasetLoader {
                 }
 
                 const data = JSON.parse(trimmedLine);
-                // console.debug('Parsed data:', data);
 
                 yield this.createLazyItem(data);
             } catch (err) {
@@ -104,9 +103,7 @@ export class LazyDatasetLoader {
         }
 
         try {
-            // console.debug("Decoding private test cases, input length:", encodedTestCases.length);
             const byteArray = base64.toByteArray(encodedTestCases);
-            // console.debug("Decoded byteArray length:", byteArray.length);
             let decompressedData;
             try {
                 decompressedData = zlib.inflateSync(byteArray);
@@ -114,8 +111,6 @@ export class LazyDatasetLoader {
                 console.warn("Inflate failed, trying unzip:", inflateError);
                 decompressedData = zlib.unzipSync(byteArray);
             }
-
-            // console.debug("Decompressed data length:", decompressedData.length);
 
             let decompressedDataString = decompressedData.toString("utf-8");
 

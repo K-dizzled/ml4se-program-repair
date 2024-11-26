@@ -1,4 +1,7 @@
 import { exec } from "child_process";
+import { promises as fs } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 import { Err, Ok, Result } from "ts-results";
 
 import {
@@ -12,17 +15,24 @@ export class PythonExecutor implements SolutionValidator {
         _datasetItem: LiveCodeBenchItem,
         _solution: string
     ): Promise<Result<string, string>> {
+        console.log(`Running test cases for ${_datasetItem.problemTitle}`);
         for (const testCase of [
             ..._datasetItem.publicTestCases,
             ..._datasetItem.privateTestCases,
         ]) {
-            const result = await this.runPythonCode(_solution, testCase);
+            const formattedSolution = _solution
+                .replace("```python", "")
+                .replace("```", "");
+            const result = await this.runPythonCode(
+                formattedSolution,
+                testCase
+            );
             if (result.startsWith("EXECUTION ERROR")) {
                 return Err(`EXECUTION ERROR: ${result}`);
             }
             if (result.trim() !== testCase.output.trim()) {
                 return Err(
-                    `SOLUTION ERROR: Expected ${testCase.output}, got ${result}`
+                    `SOLUTION ERROR: Expected ${testCase.output.trim()}, got ${result.trim()}`
                 );
             }
         }
@@ -58,11 +68,16 @@ sys.stdin = old_stdin
 # Explicitly print the captured result so it can be returned
 print(output)
 `;
-        return new Promise((resolve) => {
-            const pythonCodeBase64 = Buffer.from(pythonCode).toString("base64");
-            exec(
-                `python -c "import base64; exec(base64.b64decode('${pythonCodeBase64}').decode('utf-8'))"`,
-                (error, stdout, stderr) => {
+        return new Promise(async (resolve, reject) => {
+            const tempFilePath = join(tmpdir(), `temp_script_${Date.now()}.py`);
+            try {
+                // Write the Python code to a temporary file
+                await fs.writeFile(tempFilePath, pythonCode);
+
+                exec(`python "${tempFilePath}"`, (error, stdout, stderr) => {
+                    // Clean up the temporary file after execution
+                    fs.unlink(tempFilePath).catch(() => {});
+
                     if (error) {
                         resolve(`EXECUTION ERROR: ${error.message}`);
                         return;
@@ -72,8 +87,10 @@ print(output)
                         return;
                     }
                     resolve(stdout);
-                }
-            );
+                });
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 }

@@ -19,10 +19,10 @@ export function defaultProgramGenerationParams(
     }
 
     const systemPrompt =
-        "Generate a solution to the problems in python. Please answer with valid python code and produce nothing rather than the solution code. Always name the function solve.";
+        "Generate a solution to the problems in python. Please answer with valid python code and produce nothing rather than the solution code.";
     const referenceProblem =
-        "Write a function that adds up two integer arguments.";
-    const referenceSolution = "def solve(a, b):\n    return a + b";
+        "Add two numbers together. The function should take two arguments, a and b, and return their sum. Call this function";
+    const referenceSolution = "def sum(a, b):\n    return a + b\n\nsum(1, 2)";
 
     const oneShotExample: ChatHistory = [
         {
@@ -60,8 +60,16 @@ export async function generateSolutionForTask(
         `Started generating completion for problem ${problemStatement}`
     );
 
+    const problemMessage: ChatMessage = {
+        role: "user",
+        content: problemStatement,
+    };
+
+    const historyWithProblem =
+        programGenerationParams.chat.concat(problemMessage);
+
     const completionMessage = await grazieService.generateCompletion(
-        programGenerationParams.chat,
+        historyWithProblem,
         programGenerationParams.modelParams
     );
     const solutionMessage: ChatMessage = {
@@ -69,8 +77,7 @@ export async function generateSolutionForTask(
         content: completionMessage,
     };
 
-    const modifiedHistory =
-        programGenerationParams.chat.concat(solutionMessage);
+    const modifiedHistory = historyWithProblem.concat(solutionMessage);
 
     return [completionMessage, modifiedHistory];
 }

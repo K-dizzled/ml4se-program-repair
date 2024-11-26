@@ -9,5 +9,5 @@ export interface ExecutionParams {
 export const defaultExecutionParams: ExecutionParams = {
     severity: Severity.DEBUG,
     weakModel: "grazie-chat-llama-v2-13b",
-    strongModel: "gpt-4o",
+    strongModel: "openai-gpt-4o",
 };

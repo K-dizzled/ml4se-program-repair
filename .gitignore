@@ -5,3 +5,5 @@ node_modules
 *.vsix
 logs
 **/**/.DS_Store
+.env
+*.jsonl
