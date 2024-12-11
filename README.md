@@ -18,7 +18,7 @@ Install dependencies:
 npm install
 ```
 
-Download `LiveCodeBench` (`test4.jsonl`) from [here](https://huggingface.co/datasets/livecodebench/code_generation_lite/tree/main)
+Download `LiveCodeBench` (`test4.jsonl`) from [here](https://hugging face.co/datasets/livecodebench/code_generation_lite/tree/main)
 
 ## Development
 

@@ -1,7 +1,8 @@
-import * as base64 from "base64-js";
+// import * as base64 from "base64-js";
 import * as fs from "fs";
 import { createInterface } from "readline";
-import * as zlib from "zlib";
+
+// import * as zlib from "zlib";
 
 export interface LiveCodeBenchItem {
     problemTitle: string;
@@ -76,9 +77,10 @@ export class LazyDatasetLoader {
                         target.privateTestCases.length === 0
                     ) {
                         target.privateTestCases =
-                            LazyDatasetLoader.decodePrivateTestCases(
-                                data.private_test_cases
-                            );
+                            // LazyDatasetLoader.decodePrivateTestCases(
+                            //     data.private_test_cases
+                            // );
+                            [];
                     }
                     return target[prop as keyof LiveCodeBenchItem];
                 },
@@ -88,49 +90,56 @@ export class LazyDatasetLoader {
 
     private parseJSONSafe(jsonString: string): any {
         try {
-            return JSON.parse(jsonString);
+            const parsedData = JSON.parse(jsonString);
+            return Array.isArray(parsedData)
+                ? parsedData.map((item) => ({
+                      input: item["input"],
+                      output: item["output"],
+                      testType: item["testtype"],
+                  }))
+                : [];
         } catch (e) {
             return [];
         }
     }
 
-    private static decodePrivateTestCases(
-        encodedTestCases: string | undefined | null
-    ): TestCase[] {
-        if (!encodedTestCases) {
-            console.warn("Warning: Encoded test cases are null or undefined.");
-            return [];
-        }
+    // private static decodePrivateTestCases(
+    //     encodedTestCases: string | undefined | null
+    // ): TestCase[] {
+    //     if (!encodedTestCases) {
+    //         console.warn("Warning: Encoded test cases are null or undefined.");
+    //         return [];
+    //     }
 
-        try {
-            const byteArray = base64.toByteArray(encodedTestCases);
-            let decompressedData;
-            try {
-                decompressedData = zlib.inflateSync(byteArray);
-            } catch (inflateError) {
-                console.warn("Inflate failed, trying unzip:", inflateError);
-                decompressedData = zlib.unzipSync(byteArray);
-            }
+    //     try {
+    //         const byteArray = base64.toByteArray(encodedTestCases);
+    //         let decompressedData;
+    //         try {
+    //             decompressedData = zlib.inflateSync(byteArray);
+    //         } catch (inflateError) {
+    //             console.warn("Inflate failed, trying unzip:", inflateError);
+    //             decompressedData = zlib.unzipSync(byteArray);
+    //         }
 
-            let decompressedDataString = decompressedData.toString("utf-8");
+    //         let decompressedDataString = decompressedData.toString("utf-8");
 
-            const startIndex = decompressedDataString.indexOf("[");
-            const endIndex = decompressedDataString.lastIndexOf("]");
+    //         const startIndex = decompressedDataString.indexOf("[");
+    //         const endIndex = decompressedDataString.lastIndexOf("]");
 
-            if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-                decompressedDataString = decompressedDataString.slice(
-                    startIndex,
-                    endIndex + 1
-                );
-            } else {
-                console.warn(
-                    "Warning: Brackets not found or out of order in decompressed data"
-                );
-            }
-            return JSON.parse(decompressedDataString) as TestCase[];
-        } catch (e) {
-            console.error("Failed to decode private test cases. Error:", e);
-            return [];
-        }
-    }
+    //         if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+    //             decompressedDataString = decompressedDataString.slice(
+    //                 startIndex,
+    //                 endIndex + 1
+    //             );
+    //         } else {
+    //             console.warn(
+    //                 "Warning: Brackets not found or out of order in decompressed data"
+    //             );
+    //         }
+    //         return JSON.parse(decompressedDataString) as TestCase[];
+    //     } catch (e) {
+    //         console.error("Failed to decode private test cases. Error:", e);
+    //         return [];
+    //     }
+    // }
 }

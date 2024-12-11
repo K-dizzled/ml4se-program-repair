@@ -8,8 +8,7 @@ export interface ProgramRepairParams {
     modelParams: GrazieModelParams;
 }
 
-export function defaultProgramRepairParams(
-    solutionFeedback: string,
+export function defaultProgramInterpretParams(
     generationHistory: ChatHistory,
     modelForRepairment: string
 ): ProgramRepairParams {
@@ -20,7 +19,7 @@ export function defaultProgramRepairParams(
         );
     }
 
-    const repairPrompt = `Your last solution was incorrect, I get such error when executing it: ${solutionFeedback}. Please fix the code and send it back. Python code should be in \`\`\`python ... \`\`\` format.`;
+    const repairPrompt = `Check your last solution. There can be an error. If it contains a error in one of the lines, you should return the NUMBER of the FIRST line with the error, the LINE itself and TRACE FIELD with Python type of ERROR. SEND IT BACK IN THE FOLLOWING FORMAT "INTERPRETATION" \`\`\`Number: <line number>\nLine: <line content>\nTrace: <type of error>\`\`\` Example: "INTERPRETATION" \`\`\`Number: 3 Line: print(a + b Trace: SyntaxError\n\`\`\`\n!STRICTLY FOLLOW THE FORMAT!`;
     const repairMessage: ChatMessage = {
         role: "user",
         content: repairPrompt,
@@ -38,25 +37,19 @@ export function defaultProgramRepairParams(
     };
 }
 
-// We aim to collect a dataset where code samples
-// are repaired in just one step: one feedback error observation leads
-// to correctly solving the problem afterwards.
-// Therefore architecture assumes repairment in one step
-export async function repairSolutionFromFeedback(
-    solutionFeedback: string,
+export async function interpretSolution(
     grazieService: GrazieServiceInterface,
     generationHistory: ChatHistory,
-    modelForRepairment: string,
+    modelForInterpretation: string,
     eventLogger?: EventLogger,
-    programRepairParams: ProgramRepairParams = defaultProgramRepairParams(
-        solutionFeedback,
+    programRepairParams: ProgramRepairParams = defaultProgramInterpretParams(
         generationHistory,
-        modelForRepairment
+        modelForInterpretation
     )
 ): Promise<string> {
     eventLogger?.log(
         "start-program-repair",
-        `Started repairing code from feedback ${solutionFeedback}`
+        `Started interpreting code using ${modelForInterpretation}`
     );
 
     return grazieService.generateCompletion(
