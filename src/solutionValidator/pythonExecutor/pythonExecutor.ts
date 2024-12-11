@@ -44,13 +44,13 @@ export class PythonExecutor implements SolutionValidator {
                     errors.push(result.error);
                 } else if (
                     (result.output || "").trim() !==
-                    result.expected_output.trim()
+                    result.expectedOutput.trim()
                 ) {
                     let content;
                     if (result.isPublic) {
-                        content = `Public test case failed. Expected ${result.expected_output.trim()}, Got ${(result.output || "").trim()} for input ${result.input}`;
+                        content = `Public test case failed. Expected ${result.expectedOutput.trim()}, Got ${(result.output || "").trim()} for input ${result.input}`;
                     } else {
-                        content = `Private test case failed. Expected ${result.expected_output.trim()}, Got ${(result.output || "").trim()}`;
+                        content = `Private test case failed. Expected ${result.expectedOutput.trim()}, Got ${(result.output || "").trim()}`;
                     }
                     errors.push({
                         line: -1, // Or a suitable value for WA
@@ -88,7 +88,7 @@ export class PythonExecutor implements SolutionValidator {
     ): Promise<
         Array<{
             input: string;
-            expected_output: string;
+            expectedOutput: string;
             output: string;
             error: LineError | null;
             isPublic: number;
@@ -261,7 +261,7 @@ for test_case in test_cases:
 
     results.append({
         'input': test_case['input'],
-        'expected_output': test_case['output'],
+        'expectedOutput': test_case['output'],
         'output': output,
         'error': error,
         'isPublic': test_case['isPublic'],
