@@ -9,7 +9,7 @@ ML4SE, Constructor University, Bremen, Autumn 2024
 ## Contributions
 * Dataset generation pipeline
 * Gathered dataset for error prediction
-* Fine-tuned models for error prediction
+* Fine-tuned models for error prediction instead of Python interpreter
 
 ## Prerequisites
 
