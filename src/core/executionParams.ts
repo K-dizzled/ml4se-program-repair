@@ -8,6 +8,6 @@ export interface ExecutionParams {
 
 export const defaultExecutionParams: ExecutionParams = {
     severity: Severity.DEBUG,
-    weakModel: "grazie-chat-llama-v2-13b",
-    strongModel: "gpt-4o",
+    weakModel: "anthropic-claude",
+    strongModel: "anthropic-claude",
 };

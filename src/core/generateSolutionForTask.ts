@@ -9,7 +9,8 @@ export interface ProgramGenerationParams {
 }
 
 export function defaultProgramGenerationParams(
-    modelForInference: string
+    modelForInference: string,
+    isFunctional: boolean = false
 ): ProgramGenerationParams {
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
@@ -19,10 +20,27 @@ export function defaultProgramGenerationParams(
     }
 
     const systemPrompt =
-        "Generate a solution to the problems in python. Please answer with valid python code and produce nothing rather than the solution code. Always name the function solve.";
+        "You are an expert Python programmer. You will be given a question (problem specification) and will generate a correct Python program that matches the specification and passes all tests. You will NOT return anything except for the program. NEVER add if __name__ == '__main__': block.";
     const referenceProblem =
-        "Write a function that adds up two integer arguments.";
-    const referenceSolution = "def solve(a, b):\n    return a + b";
+        "Add two input integer numbers together and print the result. Input: 3\n2 Output: 5";
+
+    let referenceMessage;
+    let referenceSolution;
+    if (isFunctional) {
+        const referenceStarterCode =
+            "```python\nclass Solution:\n    def addTwoNumbers(self, a: int, b: int) -> int:\n```";
+        referenceMessage =
+            referenceProblem +
+            "\nYOUR CODE SHOULD START WITH CODE BELOW\n" +
+            referenceStarterCode +
+            "\nAND SHOULD PASS PRIVATE INPUT/OUTPUT TESTS from main(), i.e. you should be able to input and output\n";
+        referenceSolution =
+            "```python\nclass Solution:\n    def addTwoNumbers(self, a: int, b: int) -> int:\n        return a + b\n\ndef main():\n    solution = Solution()\n    a = int(input())\n    b = int(input())\n    print(solution.addTwoNumbers(a, b))\n\nmain()```";
+    } else {
+        referenceMessage = referenceProblem;
+        referenceSolution =
+            "```python\na = int(input())\nb = int(input())\nprint(a + b)\n```";
+    }
 
     const oneShotExample: ChatHistory = [
         {
@@ -31,7 +49,7 @@ export function defaultProgramGenerationParams(
         },
         {
             role: "user",
-            content: referenceProblem,
+            content: referenceMessage,
         },
         {
             role: "assistant",
@@ -60,8 +78,16 @@ export async function generateSolutionForTask(
         `Started generating completion for problem ${problemStatement}`
     );
 
+    const problemMessage: ChatMessage = {
+        role: "user",
+        content: problemStatement,
+    };
+
+    const historyWithProblem =
+        programGenerationParams.chat.concat(problemMessage);
+
     const completionMessage = await grazieService.generateCompletion(
-        programGenerationParams.chat,
+        historyWithProblem,
         programGenerationParams.modelParams
     );
     const solutionMessage: ChatMessage = {
@@ -69,8 +95,7 @@ export async function generateSolutionForTask(
         content: completionMessage,
     };
 
-    const modifiedHistory =
-        programGenerationParams.chat.concat(solutionMessage);
+    const modifiedHistory = historyWithProblem.concat(solutionMessage);
 
     return [completionMessage, modifiedHistory];
 }
